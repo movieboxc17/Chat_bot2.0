@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot with GPT-3</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <style>
+        /* Add your CSS styles here to customize the chatbot appearance */
+    </style>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <!-- Chat messages will be added here -->
+        </div>
+        <input type="text" id="user-input" placeholder="Type your message">
+        <button id="send-button">Send</button>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        const apiKey = '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';
+
+        sendButton.addEventListener('click', () => {
+            const userMessage = userInput.value;
+            if (userMessage.trim() === '') return;
+
+            // Display user message
+            appendMessage('You', userMessage);
+
+            // Make an API call to GPT-3
+            axios.post('https://api.openai.com/v1/engines/davinci-codex/completions', {
+                prompt: userMessage,
+                max_tokens: 50,
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                const botMessage = response.data.choices[0].text;
+                // Display bot's response
+                appendMessage('Bot', botMessage);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+            // Clear user input
+            userInput.value = '';
+        });
+
+        function appendMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = sender === 'You' ? 'user-message' : 'bot-message';
+            messageDiv.textContent = `${sender}: ${message}`;
+            chatBox.appendChild(messageDiv);
+        }
+    </script>
+</body>
+</html>
